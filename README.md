@@ -20,51 +20,83 @@ hours of fiddly manual work:
 
 ---
 
-## Quick start (Windows)
+## Setup (Windows) — step by step
 
-**Prerequisites** (installed once):
-- Android Studio + Android SDK (gives you `adb`, `emulator`, `sdkmanager`,
-  `avdmanager` — the scripts auto-detect the SDK location)
-- **Android SDK Command-line Tools (latest)** — Android Studio → SDK Manager →
-  SDK Tools → tick it
-- A JDK (Android Studio's bundled JBR is auto-detected)
-- [Git for Windows](https://git-scm.com/download/win) — provides `git` **and**
-  the `openssl` used to hash your CA
-- Python 3 + `pip install pillow frida-tools` (frida client on the host; Pillow
-  only if you want a custom boot animation)
+The whole lab is built by **one command**. Just install a few tools first,
+clone the repo, and run the setup script. Total time ≈ 15–30 min (mostly
+automatic downloads). You do **not** need to be an Android expert.
 
-**Build it:**
+### Step 1 — Install these once
+
+| Tool | Why | Get it |
+|---|---|---|
+| **Android Studio** | provides the emulator + `adb`/`emulator`/`sdkmanager` (auto-detected) | <https://developer.android.com/studio> |
+| **SDK Command-line Tools** | needed to create the emulator | In Android Studio: **More Actions → SDK Manager → SDK Tools tab → tick "Android SDK Command-line Tools (latest)" → Apply** |
+| **Git for Windows** | `git` to clone + `openssl` to install the Burp CA | <https://git-scm.com/download/win> |
+| **Python 3** | builds frida + boot animation | <https://www.python.org/downloads/> (tick *"Add to PATH"*) |
+
+Then open **PowerShell** and install the Python helpers:
 
 ```powershell
-git clone https://github.com/<you>/AndroGlitch.git
+pip install frida-tools pillow
+```
+
+> That's everything. The scripts auto-detect where your SDK and Java live —
+> no environment variables to set by hand.
+
+### Step 2 — Get the project
+
+```powershell
+git clone https://github.com/Spidy1782/AndroGlitch.git
 cd AndroGlitch
+```
 
-# (optional) export your Burp CA to assets\burp.der   — Burp: Proxy settings >
-#   Import/export CA certificate > "Certificate in DER format"
-# (optional) drop a logo at assets\boot.png for the boot animation
+### Step 3 (optional) — Drop in your own files
 
+Skip this if you just want the emulator running; you can always add them later.
+
+- **Intercept HTTPS in Burp?** Export your Burp CA and save it as
+  `assets\burp.der`.
+  *(Burp → Proxy → Proxy settings → Import/export CA certificate →
+  "Certificate in DER format".)*
+- **Want a custom boot logo?** Put any image at `assets\boot.png`.
+
+### Step 4 — Build the whole lab (one command)
+
+```powershell
 powershell -ExecutionPolicy Bypass -File .\setup.ps1
 ```
 
-`setup.ps1` runs 8 idempotent steps end-to-end (~15–30 min, mostly downloads):
+Sit back — it installs the Android 12 image, creates the emulator, roots it,
+installs the Play Store and Frida, and puts an **AndroGlitch** shortcut on your
+desktop. When it finishes, **double-click the AndroGlitch desktop icon** to
+start the lab.
+
+That's it. ✅
+
+---
+
+### What the one command actually does
+
+`setup.ps1` runs these 8 steps automatically (each is safe to re-run):
 
 | # | Step | What it does |
 |---|---|---|
 | 1 | install-sdk-image | API-31 **google_apis** x86_64 image (rootable; not google_play) |
-| 2 | create-avd | creates the `SecLab12` AVD |
-| 3 | root-avd | rootAVD → Magisk; grants adb-shell root headlessly |
+| 2 | create-avd | creates the `SecLab12` emulator |
+| 3 | root-avd | rootAVD → Magisk; grants adb-shell root automatically |
 | 4 | install-burp-ca | hashes `assets\burp.der` and installs it as a **system** CA |
-| 5 | install-playstore | extracts Phonesky from a Google image, installs it **privileged** + applies the crash fixes |
-| 6 | boot-animation | builds a STORED `bootanimation.zip` from `assets\boot.png` (optional) |
-| 7 | install-frida | downloads `frida-server` matching your client, pushes it |
-| 8 | desktop-shortcut | hidden **AndroGlitch** launcher on your desktop |
+| 5 | install-playstore | extracts the Play Store from a Google image, installs it **privileged** + applies the crash fixes |
+| 6 | boot-animation | builds a boot animation from `assets\boot.png` (skipped if none) |
+| 7 | install-frida | downloads `frida-server` matching your client and pushes it |
+| 8 | desktop-shortcut | creates the hidden **AndroGlitch** desktop launcher |
 
-Re-run any subset:
+Need to redo just part of it later?
 
 ```powershell
 .\setup.ps1 -Only 5        # reinstall just the Play Store
-.\setup.ps1 -From 4        # resume from the Burp-CA step
-.\setup.ps1 -SkipRoot      # already rooted
+.\setup.ps1 -From 4        # resume from step 4 onward
+.\setup.ps1 -SkipRoot      # skip rooting (already rooted)
 ```
 
 ## Launching
