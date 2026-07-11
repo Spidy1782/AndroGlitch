@@ -1,0 +1,24 @@
+# ── Large binaries — fetched/generated at setup, never committed ────────────
+assets/playstore.apk
+assets/frida-server
+assets/frida-server-*.xz
+assets/bootanimation.zip
+
+# ── Your private material — MUST NOT be published ───────────────────────────
+assets/burp.der
+assets/burp.pem
+assets/burp.crt
+assets/cacert.der
+assets/_burp.pem
+assets/*.0
+assets/boot.png
+assets/boot.jpg
+assets/boot-frames/
+
+# ── Cloned at setup ─────────────────────────────────────────────────────────
+rootAVD/
+
+# ── Runtime / local ─────────────────────────────────────────────────────────
+logs/
+*.log
+gsf-android-id.txt

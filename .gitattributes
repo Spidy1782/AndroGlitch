@@ -1,0 +1,8 @@
+# Device shell scripts run on Android via `sh` — MUST stay LF or they break.
+*.sh   text eol=lf
+# Windows launchers keep CRLF.
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.vbs  text eol=crlf
+# Everything else: normalize, default LF.
+*      text=auto eol=lf
