@@ -118,16 +118,41 @@ frida-ps -U                       # lists device processes
 # open the Play Store, sign in, install an app
 ```
 
-Route a target app through Burp (listener on 8080, all interfaces):
+## Intercept HTTPS traffic with Burp Suite
+
+**1. Make Burp listen on all interfaces.**
+Burp → **Proxy → Proxy settings → Proxy listeners →** add/edit a listener on
+**port 8080**, bind to **All interfaces**. (The emulator reaches your PC via the
+special address `10.0.2.2`, so localhost-only won't work.)
+
+**2. Install Burp's CA as a *system* certificate** (Android 12 ignores
+user-added CAs). Export it from Burp — **Proxy → Proxy settings → Import/export
+CA certificate → Certificate in DER format** — save as `assets\burp.der`, then:
+
+```powershell
+.\setup.ps1 -Only 4      # installs it into the system trust store (no TLS warning)
+```
+
+**3. Point the emulator at Burp:**
 
 ```powershell
 adb shell settings put global http_proxy 10.0.2.2:8080   # ON
-adb shell settings put global http_proxy :0              # OFF
+adb shell settings put global http_proxy :0              # OFF (do this for the Play Store)
 ```
 
-> **Burp proxy vs the Play Store are mutually exclusive.** Google apps pin their
-> certs, so keep the proxy **OFF** for Play Store / sign-in and turn it **ON**
-> only to intercept the target app under test.
+Open your target app — its HTTPS requests appear decrypted in
+**Burp → Proxy → HTTP history**.
+
+> **Proxy vs the Play Store are mutually exclusive.** Google apps pin their
+> certs, so keep the proxy **OFF** for Play Store / sign-in and **ON** only to
+> intercept the target app.
+
+**Certificate-pinned apps** (no traffic even with the CA installed): use the
+lab's Frida to bypass pinning — `frida-server` already runs as root:
+
+```powershell
+frida -U -f com.target.app -l pinning-bypass.js   # any universal SSL-pinning-bypass script
+```
 
 ## Customizing
 
