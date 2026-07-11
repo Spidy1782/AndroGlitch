@@ -130,3 +130,7 @@ docs/SETUP-NOTES.md  full build log + every root-cause fix
   retry.
 
 See **`docs/SETUP-NOTES.md`** for the full diagnosis behind every fix.
+
+## Contributing
+
+Issues and PRs welcome. This lab is for **authorized** mobile-app security testing only.
