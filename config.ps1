@@ -73,6 +73,17 @@ function Resolve-OpenSslDir {
 }
 $OpenSslDir = Resolve-OpenSslDir
 
+# --- export the toolchain so child tools (avdmanager/sdkmanager/emulator) see it --
+# Every step dot-sources this file, so setting these here makes `setup.ps1` work
+# standalone (no need to dot-source env.ps1 first).
+$env:ANDROID_SDK_ROOT = $Sdk
+$env:ANDROID_HOME      = $Sdk
+if ($Jdk) { $env:JAVA_HOME = $Jdk }
+# sdkmanager/avdmanager have an over-strict Java-version check that mis-fires on
+# JDK 20+ ("Java version 17 or higher is required"). This is Android's official
+# override and is harmless on supported JDKs.
+$env:SKIP_JDK_VERSION_CHECK = '1'
+
 # --- Helpers ----------------------------------------------------------------
 function Get-SecLabSerial {
     # Returns the emulator-XXXX serial whose AVD name is $AvdName, or $null.
