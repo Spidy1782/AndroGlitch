@@ -47,7 +47,7 @@ pip install frida-tools pillow
 ### Step 2 — Get the project
 
 ```powershell
-git clone https://github.com/Spidy1782/AndroGlitch.git
+git clone https://github.com/RedGlitchX/AndroGlitch.git
 cd AndroGlitch
 ```
 
@@ -147,6 +147,10 @@ docs/SETUP-NOTES.md  full build log + every root-cause fix
 
 ## Troubleshooting
 
+- **"Java version 17 or higher is required" / "AVD creation failed" at step 2**
+  → `avdmanager`'s version check mis-fires on JDK 20+. The current scripts set
+  the official override automatically; if you're on an older copy, run
+  `$env:SKIP_JDK_VERSION_CHECK = 1` then re-run `.\setup.ps1`.
 - **frida "need Gadget to attach on jailed Android"** → `frida-server` isn't
   running as root. Run `launch\restart-frida.bat`, then `frida-ps -U`.
 - **Play Store crashes on open** → already fixed by step 5. If it recurs after a
