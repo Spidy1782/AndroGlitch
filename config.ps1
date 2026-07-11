@@ -7,7 +7,12 @@
 #  auto-detected or overridable via environment variables, so the repo is
 #  portable to any Windows machine with Android Studio + the SDK.
 # ============================================================================
-$ErrorActionPreference = 'Stop'
+# NOTE: deliberately NOT 'Stop'. Native tools (adb, avdmanager, rootAVD) write
+# normal status to stderr, and in Windows PowerShell 5.1 'Stop' turns any such
+# stderr line into a fatal error (e.g. adb's "su: invalid uid/gid" during the
+# not-yet-rooted check aborts step 3). The scripts stop on real failures via
+# explicit `throw` + checks instead, which fire regardless of this setting.
+$ErrorActionPreference = 'Continue'
 
 # --- Repo root = this file's directory --------------------------------------
 $SecLabRoot = $PSScriptRoot
