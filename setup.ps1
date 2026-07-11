@@ -49,8 +49,10 @@ foreach ($s in $steps) {
     if ($s.n -lt $From -or $s.n -gt $To) { continue }
     if ($s.n -eq 3 -and $SkipRoot) { Write-Host "--- step 3 root-avd  (skipped)`n" -ForegroundColor DarkGray; continue }
     Write-Host "--- step $($s.n)  $($s.name) ---" -ForegroundColor Magenta
-    & "$SecLabRoot\scripts\$($s.file)"
-    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) { throw "step $($s.n) ($($s.name)) failed (exit $LASTEXITCODE)" }
+    # Steps signal real failure by throwing; $LASTEXITCODE reflects the last native
+    # tool inside the step (adb/grep often exit nonzero on success), so don't gate on it.
+    try { & "$SecLabRoot\scripts\$($s.file)" }
+    catch { throw "step $($s.n) ($($s.name)) failed: $($_.Exception.Message)" }
     Write-Host ""
 }
 

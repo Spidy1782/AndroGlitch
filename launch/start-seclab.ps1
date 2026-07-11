@@ -24,7 +24,7 @@ Log "Waiting for boot..."
 $serial = $null
 for ($i=0; $i -lt 90; $i++) {
     if (-not $serial) { $serial = Get-SecLabSerial }
-    if ($serial -and (& $Adb -s $serial shell getprop sys.boot_completed 2>$null).Trim() -eq '1') { break }
+    if ($serial -and ((& $Adb -s $serial shell getprop sys.boot_completed 2>$null | Out-String).Trim() -eq '1')) { break }
     Start-Sleep -Seconds 3
 }
 if (-not $serial) { Log "[!] $AvdName did not appear. Aborting frida auto-start."; exit 1 }
@@ -35,7 +35,7 @@ Start-Sleep 2
 & $Adb -s $serial wait-for-device
 
 $bin = "$SecLabRoot\assets\frida-server"
-$present = (& $Adb -s $serial shell "ls /data/local/tmp/frida-server 2>/dev/null").Trim()
+$present = (& $Adb -s $serial shell "ls /data/local/tmp/frida-server 2>/dev/null" | Out-String).Trim()
 if (-not $present) {
     if (Test-Path $bin) { Log "pushing frida-server..."; & $Adb -s $serial push $bin /data/local/tmp/frida-server | Out-Null }
     else { Log "[!] no frida-server present or in assets\ - run setup.ps1 -Only 7" }
@@ -46,6 +46,6 @@ Start-Sleep 1
 & $Adb -s $serial shell "su -c 'setsid /data/local/tmp/frida-server >/dev/null 2>&1 &'"
 Start-Sleep 3
 
-$procLine = (& $Adb -s $serial shell "ps -A -o USER,PID,NAME | grep frida").Trim()
+$procLine = (& $Adb -s $serial shell "ps -A -o USER,PID,NAME | grep frida" | Out-String).Trim()
 if ($procLine) { Log "frida-server running: $procLine`r`nReady -> run 'frida-ps -U' from the host." }
 else           { Log "[!] frida-server did not start. Run restart-frida.bat." }

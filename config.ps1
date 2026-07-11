@@ -102,7 +102,9 @@ function Get-SecLabSerial {
 
 function Wait-Boot([string]$Serial, [int]$Retries = 90) {
     for ($i = 0; $i -lt $Retries; $i++) {
-        if ((& $Adb -s $Serial shell getprop sys.boot_completed 2>$null).Trim() -eq '1') { return $true }
+        # During a reboot adb returns nothing (null); Out-String makes .Trim() safe.
+        $bc = (& $Adb -s $Serial shell getprop sys.boot_completed 2>$null | Out-String).Trim()
+        if ($bc -eq '1') { return $true }
         Start-Sleep -Seconds 3
     }
     return $false

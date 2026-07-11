@@ -36,9 +36,9 @@ if (-not (Test-Path $apk)) {
     }
     if (-not $ex) { throw "throwaway AVD did not boot" }
     [void](Wait-Boot $ex)
-    $remote = (& $Adb -s $ex shell 'pm path com.android.vending' 2>$null | Select-String 'package:(.+Phonesky.apk)').Matches.Groups[1].Value
-    if (-not $remote) { $remote = '/product/priv-app/Phonesky/Phonesky.apk' }
-    & $Adb -s $ex pull ($remote.Trim()) $apk | Out-Null
+    $m = & $Adb -s $ex shell 'pm path com.android.vending' 2>$null | Select-String 'package:(.+Phonesky.apk)'
+    $remote = if ($m) { $m.Matches[0].Groups[1].Value.Trim() } else { '/product/priv-app/Phonesky/Phonesky.apk' }
+    & $Adb -s $ex pull $remote $apk | Out-Null
     & $Adb -s $ex emu kill 2>$null | Out-Null
     Start-Sleep 3
     & $Avdmanager delete avd -n $tmpAvd 2>$null | Out-Null

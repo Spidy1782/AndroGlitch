@@ -39,5 +39,5 @@ if (-not $serial) { Warn "$AvdName not running - it will be pushed on next launc
 & $Adb -s $serial shell "su -c 'pkill -f frida-server' 2>/dev/null"
 & $Adb -s $serial shell "su -c 'setsid /data/local/tmp/frida-server >/dev/null 2>&1 &'"
 Start-Sleep 3
-$p = (& $Adb -s $serial shell "ps -A -o USER,PID,NAME | grep frida").Trim()
+$p = (& $Adb -s $serial shell "ps -A -o USER,PID,NAME | grep frida" | Out-String).Trim()
 if ($p) { Ok "frida-server running: $p" } else { Warn "frida-server not confirmed; run launch\restart-frida.bat" }
